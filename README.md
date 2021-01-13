@@ -16,7 +16,7 @@
   <ol>
     <li><a href="#about-the-project">About The Project</a></li>
     <li><a href="#getting-started">Getting Started</a></li>
-    <li><a href="#usage">Website</a></li>
+    <li><a href="#website">Website</a></li>
     <li><a href="#api">API</a></li>
 	<li><a href="#preprocess">Preprocess</a></li>
 	<li><a href="#model">Model</a></li>
@@ -30,9 +30,9 @@
 ## About The Project
 
 
-The purpose of the project is to develo a tool that would be able to detect moles that need to be handle by doctors.
+The purpose of the project is to develop a tool that would be able to detect moles that need to be handle by doctors.
 We use and train the VGG model to detect when the mole is dangerous.
-the project will be available on a simple web page where the user could upload a picture of the mole and see the result.
+The project will be available on a simple web page where the user could upload a picture of the mole and see the result.
 The project will be upload on internet with flask, doker and heroku. 
 
 
@@ -104,6 +104,9 @@ It’s an essential part of using Heroku.
 
 **IMPORTANT NOTE:** While with _localhost_ and _Docker_ it is not mandatory to specify the PORT, if one would like to deploy on Heroku, the port needs to be specified within the 'app.py' to avoid crashes.
 
+## Website
+
+
 ## API
 
 Our REST API is deployed on Heroku, using a Docker container. It is available at [this address](https://predict-keras-api.herokuapp.com/).
@@ -129,9 +132,14 @@ This endpoint is the main one of this API. With it, you will be able to query a 
 
 ##### **Input**
 
-T
+
 ##### **Output**
 
+
+## Preprocess
+
+
+## Model
 
 
 <!-- Authors -->
