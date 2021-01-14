@@ -3,6 +3,8 @@ FROM ubuntu:latest
 # Install python3-pip
 RUN apt-get update -y \
 	&& apt-get install -y python3-pip \
+	libgl1-mesa-glx \
+	&& DEBIAN_FRONTEND=noninteractive apt-get install -y libgtk2.0-dev \
 	&& rm -rf /var/lib/apt/lists/*
 
 # integrate only necessary files
@@ -14,9 +16,10 @@ RUN mkdir app/preprocessing
 
 COPY template app/template
 COPY model/model.pkl app/model
+COPY model/model.py app/model
 COPY predict/predict.py app/predict
 COPY preprocessing/preprocess.py app/preprocessing
-COPY app.py app
+COPY basic_app.py app/app.py
 COPY Procfile app
 COPY requirements-docker.txt .
 
