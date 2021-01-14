@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 def selma_secret_sauce(image, advanced = True, bigger_border = False, replicate_border = False, for_training = True, model_size = (256, 256)):
     '''Makes a square image out of the input image (COLOR_BGR).
     Options:
+    advanced: if True, add hair removal and contrast boosting
     for_training: if True, do not resize the image to model_size, because it
                 will be done after data augmentation by ImageDataGenerator.
     bigger_border: can be used for training give more space for rotation in augmentation
