@@ -1,8 +1,33 @@
 import os
+import sys
+
 import cv2
-import numpy as np
 from flask import Flask, render_template, request, redirect, url_for, abort
+import numpy as np
 from werkzeug.utils import secure_filename
+from model.model import mole_model
+import requests
+
+# load the model
+model = mole_model()
+
+# download weights
+url = 'https://b0ykepubbucket.s3-eu-west-1.amazonaws.com/weights.h5'
+
+r = requests.get(url, stream = True)
+
+chunk_progress = 0
+
+with open("weights.h5", "wb") as weights:
+
+    for chunk in r.iter_content(chunk_size = 8388608):
+
+        if chunk:
+
+            weights.write(chunk)
+            chunk_progress += 1
+            print(f"Downloaded: {chunk_progress*8}MB\n")
+            sys.stdout.flush()
 
 app = Flask(__name__, template_folder='./template')
 app.config['EXPLAIN_TEMPLATE_LOADING'] = True
