@@ -15,15 +15,13 @@ RUN mkdir app/predict
 RUN mkdir app/preprocessing
 
 COPY template app/template
-COPY model/model.pkl app/model
-COPY model/model.py app/model
-COPY predict/predict.py app/predict
-COPY preprocessing/preprocess.py app/preprocessing
-COPY basic_app.py app/app.py
-COPY Procfile app
-COPY requirements-docker.txt .
+COPY model/model_final.h5 /app/model
+COPY preprocessing/preprocess.py /app/preprocessing
+COPY app.py /app
+COPY Procfile /app
+COPY requirements-docker.txt /app
 
-# WORKDIR /src
+WORKDIR /app
 RUN pip3 install -r requirements-docker.txt
 
 # files paths in py scripts will be parsed relative to WORKDIR
