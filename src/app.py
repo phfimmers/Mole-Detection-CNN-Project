@@ -1,30 +1,41 @@
-import imghdr
+'''Main Application file
+# comment out ## lines to add feature of automatic model updating from S3
+'''
+
 import os
-from flask import Flask, render_template, request, redirect, url_for, abort, \
-    send_from_directory
+import sys
+
+import cv2
+from flask import Flask, render_template, request, redirect, url_for, abort
+from keras.models import load_model
+import numpy as np
+##import requests
 from werkzeug.utils import secure_filename
 
-app = Flask(__name__)
-app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024
-app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.png', '.gif']
-app.config['UPLOAD_PATH'] = 'uploads'
 
-def validate_image(stream):
-    header = stream.read(512)
-    stream.seek(0)
-    format = imghdr.what(None, header)
-    if not format:
-        return None
-    return '.' + (format if format != 'jpeg' else 'jpg')
+from preprocessing.preprocess import selma_secret_sauce
 
-@app.errorhandler(413)
-def too_large(e):
-    return "File is too large", 413
+## # download model
+## url = 'https://b0ykepubbucket.s3-eu-west-1.amazonaws.com/64model.h5'
+## r = requests.get(url, stream = True)
+## chunk_progress = 0
+## with open("modelfile.h5", "wb") as modelfile:
+##     for chunk in r.iter_content(chunk_size = 8388608):
+##         if chunk:
+##             modelfile.write(chunk)
+##             chunk_progress += 1
+##             print(f"Downloaded: {chunk_progress*8}MB\n")
+##             sys.stdout.flush()
+
+# start the app
+app = Flask(__name__, template_folder='./template')
+app.config['EXPLAIN_TEMPLATE_LOADING'] = True
+app.config['MAX_CONTENT_LENGTH'] = 2500 * 2500
+app.config['UPLOAD_EXTENSIONS'] = ['.jpg', '.jpeg', '.png', '.gif', '.bmp']
 
 @app.route('/')
 def index():
-    files = os.listdir(app.config['UPLOAD_PATH'])
-    return render_template('index.html', files=files)
+    return render_template('index.html')
 
 @app.route('/', methods=['POST'])
 def upload_files():
@@ -32,12 +43,39 @@ def upload_files():
     filename = secure_filename(uploaded_file.filename)
     if filename != '':
         file_ext = os.path.splitext(filename)[1]
-        if file_ext not in app.config['UPLOAD_EXTENSIONS'] or \
-                file_ext != validate_image(uploaded_file.stream):
-            return "Invalid image", 400
-        uploaded_file.save(os.path.join(app.config['UPLOAD_PATH'], filename))
-    return '', 204
+        if file_ext.lower() not in app.config['UPLOAD_EXTENSIONS']:
+            abort(400)
+        # integrate preprocessing here
+        image = cv2.imdecode(np.frombuffer(uploaded_file.read(), np.uint8), cv2.IMREAD_UNCHANGED)
+        image = selma_secret_sauce(image, advanced = True, for_training = False, model_size = (64,64))
+        image = np.expand_dims(image, axis=0)
+        # don't forget to rescale the image for predictin
+        # just like done in data augmentation
+        image = image / 255.
+        # integrate prediction here
+        ## model = load_model('modelfile.h5')
+        model = load_model('./app/model/model_final.h5')
+        prediction = model.predict(image)
+        print(f"Predicted: {prediction[0][0]}\n")
+        sys.stdout.flush()
+        # integrate reply here
+        if prediction[0][0] >= 0.5:
+            print("redirecting to doctor")
+            sys.stdout.flush()
+            return "Please have it checked by a doctor."
+        else:
+            print("redirecting to no doctor")
+            sys.stdout.flush()
+            return "This looks harmless"
+    
+    return redirect(url_for('upload_files'))
 
-@app.route('/uploads/<filename>')
-def upload(filename):
-    return send_from_directory(app.config['UPLOAD_PATH'], filename)
+if __name__ == "__main__":
+    # You want to put the value of the env variable PORT if it exist
+    # (some services only open specifiques ports)
+    port = int(os.environ.get('PORT', 5000))
+    # Threaded option to enable multiple instances for
+    # multiple user access support
+    # You will also define the host to "0.0.0.0" because localhost
+    # will only be reachable from inside de server.
+    app.run(host="0.0.0.0", threaded=True, port=port)
