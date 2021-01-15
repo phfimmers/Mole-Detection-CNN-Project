@@ -3,7 +3,6 @@ to all images train/test/uploads'''
 
 import cv2
 from math import ceil
-import matplotlib.pyplot as plt
 
 def selma_secret_sauce(image, advanced = True, bigger_border = False, replicate_border = False, for_training = True, model_size = (256, 256)):
     '''Makes a square image out of the input image (COLOR_BGR).
@@ -67,6 +66,12 @@ def selma_secret_sauce(image, advanced = True, bigger_border = False, replicate_
         
         return square
     
+    # if input image is too large to preprocess, first shrink it to 632x...
+    if image.shape[1] > 632:
+        source_ar = image.shape[1]/image.shape[0]
+        target_height = int(((632 / source_ar) // 8) * 8)
+        image = cv2.resize(image, (632, target_height), interpolation = cv2.INTER_AREA)
+
     # convert BMP to RGB format
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     
