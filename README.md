@@ -109,7 +109,7 @@ It’s an essential part of using Heroku.
 
 ## API
 
-Our REST API is deployed on Heroku, using a Docker container. It is available at [this address](http://melanomechecker.herokuapp.com/).
+Our REST API is deployed on Heroku, using a Docker container. It is available at [this address](http://melanomachecker.herokuapp.com/).
 
 Now, let's describe our simple little API's routes and endpoints and the different HTTP methods that can be used.
 
